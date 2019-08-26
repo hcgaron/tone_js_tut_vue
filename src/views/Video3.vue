@@ -1,42 +1,19 @@
 <template>
   <v-container>
-    <arp-radio-row :numButtons="numButtons"></arp-radio-row>
+    <arp-radio-row
+      :numButtons="numButtons"
+      @changeChord="handleChord($event)"
+      :checkedValue="currentChord"
+    ></arp-radio-row>
+    <v-row justify="center" style='background-color:black'>
+      <v-col cols="4">
+        <v-row justify="center"  style='background-color:red'>
+          <v-btn large v-on:click="startSynth()">Start Synth</v-btn>
+          <v-btn large v-on:click="stopSynth()">Stop Synth</v-btn>
+        </v-row>
+      </v-col>
+    </v-row>
   </v-container>
-
-
-
-  <!-- <v-container>
-    <v-radio-group row id="arpRadio">
-      <v-radio id="chord-1" value="1" name="chord"></v-radio>
-      <v-radio id="chord-2" value="2" name="chord"></v-radio>
-      <v-radio id="chord-3" value="3" name="chord"></v-radio>
-      <v-radio id="chord-4" value="4" name="chord"></v-radio>
-      <v-radio id="chord-5" value="5" name="chord"></v-radio>
-      <v-radio id="chord-6" value="6" name="chord"></v-radio>
-    </v-radio-group>
-    <header>
-      <v-list row>
-        <v-list-item>
-          <label for="chord-1">1</label>
-        </v-list-item>
-        <v-list-item>
-          <label for="chord-2">2</label>
-        </v-list-item>
-        <v-list-item>
-          <label for="chord-3">3</label>
-        </v-list-item>
-        <v-list-item>
-          <label for="chord-4">4</label>
-        </v-list-item>
-        <v-list-item>
-          <label for="chord-5">5</label>
-        </v-list-item>
-        <v-list-item>
-          <label for="chord-6">6</label>
-        </v-list-item>
-      </v-list>
-    </header>
-  </v-container>-->
 </template>
 
 <script>
@@ -45,14 +22,73 @@ import ArpRadioRow from "../components/ArpRadioRow";
 export default {
   data() {
     return {
-      numButtons: 5
+      numButtons: 5,
+      currentChord: 1,
+      chords: ["A1 C2 E2", "F2 A2 C3", "G2 B2 D3", "D2 F2 A2", "E1 G#1 B1"].map(
+        string => {
+          return string.split(" ");
+        }
+      ),
+      chordIdx: 0,
+      step: 0,
+      synth: new Tone.Synth({
+        oscillator: {
+          type: "square"
+        }
+      }),
+      filter: new Tone.Filter({
+        type: "lowpass",
+        frequency: 400,
+        rolloff: -24,
+        Q: 2,
+        gain: 0
+      }).toMaster(),
+      filterEnv: new Tone.FrequencyEnvelope(0.002, 0.2, 0.01, 0.5)
     };
   },
   components: {
     arpRadioRow: ArpRadioRow
   },
-  mounted() {},
-  updated() {}
+  // computed: {
+  //   synth(){
+  //     this.filterEnv.connect(this.filter.frequency);
+  //     this.oscillator.connect(this.filter);
+  //     this.filter.toMaster();
+  //     return
+  //   }
+  // },
+  methods: {
+    handleChord(newChordIndex) {
+      this.currentChord = newChordIndex;
+      this.chordIdx = this.currentChord - 1;
+      // console.log("parent: " + this.currentChord);
+    },
+    onRepeat(time) {
+      let chord = this.chords[this.chordIdx];
+      let note = chord[this.step % 3];
+      this.synth.triggerAttackRelease(note, "8n", time);
+      this.filterEnv.triggerAttackRelease();
+      this.step++;
+    },
+    startSynth() {
+      Tone.Transport.start();
+    },
+    stopSynth() {
+      Tone.Transport.stop();
+    }
+  },
+  mounted() {
+    let gain = new Tone.Gain(0.01);
+    this.synth.connect(this.filter);
+    this.filterEnv.connect(this.filter.frequency);
+    this.filter.connect(gain);
+    gain.toMaster();
+    Tone.Transport.scheduleRepeat(this.onRepeat, "8n");
+    // Tone.Transport.start();
+  },
+  updated() {
+    // console.log("parent: " + this.currentChord);
+  }
 };
 </script>
 
@@ -61,8 +97,8 @@ export default {
   visibility: hidden;
 }
 
-input {
-  position: absolute;
-  left: -9999px;
-}
+// input {
+//   position: absolute;
+//   left: -9999px;
+// }
 </style>
