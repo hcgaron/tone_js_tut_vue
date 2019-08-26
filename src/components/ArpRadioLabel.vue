@@ -17,7 +17,7 @@ label {
     text-align: center;
     cursor: pointer;
     padding: 1rem;
-    // border: 1px solid lightblue;
+    
 
 }
 </style>

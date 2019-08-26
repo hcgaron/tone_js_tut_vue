@@ -5,9 +5,9 @@
       @changeChord="handleChord($event)"
       :checkedValue="currentChord"
     ></arp-radio-row>
-    <v-row justify="center" style='background-color:black'>
+    <v-row justify="center">
       <v-col cols="4">
-        <v-row justify="center"  style='background-color:red'>
+        <v-row justify="center">
           <v-btn large v-on:click="startSynth()">Start Synth</v-btn>
           <v-btn large v-on:click="stopSynth()">Stop Synth</v-btn>
         </v-row>
@@ -24,10 +24,8 @@ export default {
     return {
       numButtons: 5,
       currentChord: 1,
-      chords: ["A1 C2 E2", "F2 A2 C3", "G2 B2 D3", "D2 F2 A2", "E1 G#1 B1"].map(
-        string => {
-          return string.split(" ");
-        }
+      chords: ["A0 C1 E1", "F0 A0 C1", "G0 B0 D1", "D0 F0 A0", "E0 G0 B0"].map(
+        this.formatChords
       ),
       chordIdx: 0,
       step: 0,
@@ -43,7 +41,7 @@ export default {
         Q: 2,
         gain: 0
       }).toMaster(),
-      filterEnv: new Tone.FrequencyEnvelope(0.002, 0.2, 0.01, 0.5)
+      filterEnv: new Tone.FrequencyEnvelope(0.002, 0.2, 0.01, 0.05)
     };
   },
   components: {
@@ -63,11 +61,25 @@ export default {
       this.chordIdx = this.currentChord - 1;
       // console.log("parent: " + this.currentChord);
     },
+    formatChords(chordString) {
+      let chord = chordString.split(" ");
+      let arr = [];
+      for (let i = 0; i < 2; i++) {
+        for (let j = 0; j < chord.length; j++) {
+          let noteOct = chord[j].split("");
+          let note = noteOct[0];
+          let oct = noteOct[1] === "0" ? i + 1 : i + 2;
+          note += oct;
+          arr.push(note);
+        }
+      }
+      return arr;
+    },
     onRepeat(time) {
       let chord = this.chords[this.chordIdx];
-      let note = chord[this.step % 3];
-      this.synth.triggerAttackRelease(note, "8n", time);
-      this.filterEnv.triggerAttackRelease();
+      let note = chord[this.step % chord.length];
+      this.synth.triggerAttackRelease(note, "16n", time);
+      this.filterEnv.triggerAttackRelease(0.2, time);
       this.step++;
     },
     startSynth() {
@@ -78,15 +90,17 @@ export default {
     }
   },
   mounted() {
-    let gain = new Tone.Gain(0.01);
-    this.synth.connect(this.filter);
+    const gain = new Tone.Gain(0.4);
+    this.synth.connect(gain)
+    gain.connect(this.filter);
     this.filterEnv.connect(this.filter.frequency);
-    this.filter.connect(gain);
-    gain.toMaster();
-    Tone.Transport.scheduleRepeat(this.onRepeat, "8n");
+    this.filter.toMaster();
+    Tone.Transport.scheduleRepeat(this.onRepeat, "16n");
+    Tone.Transport.bpm.value = 90;
     // Tone.Transport.start();
   },
   updated() {
+    // Tone.Transport.scheduleRepeat(this.onRepeat, "8n");
     // console.log("parent: " + this.currentChord);
   }
 };

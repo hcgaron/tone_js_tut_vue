@@ -30,7 +30,8 @@ export default {
       video_pages: [
         { name: "video_1", text: "Video 1" },
         { name: "video_2", text: "Video 2" },
-        { name: "video_3", text: "Video 3", subheader: "Arpeggiator" }
+        { name: "video_3", text: "Video 3", subheader: "Arpeggiator" },
+        { name: "video_4", text: "Video 4", subheader: "Synth Tester" }
       ]
     };
   }
