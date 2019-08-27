@@ -83,12 +83,7 @@ export default {
       this.synth.playNote();
     },
     playLoop() {
-      // this.synth.synth.context.transport.scheduleRepeat(time => {
-      //   let note = this.loopNotes[(this.loopTick) * 2 % this.loopNotes.length];
-      //   this.synth.synth.triggerAttackRelease(note, '8n', time);
-      //   this.loopTick++;
-      // }, '4n')
-      // this.synth.synth.context.transport.start();
+
       Tone.Transport.scheduleRepeat(time => {
         let note = this.loopNotes[(this.loopTick * 2) % this.loopNotes.length];
         this.synth.synth.triggerAttackRelease(note, "8n", time);
@@ -98,7 +93,6 @@ export default {
     },
     stopLoop() {
       this.synth.synth.triggerRelease();
-      // this.synth.synth.context.transport.stop();
       Tone.Transport.stop();
     }
   },

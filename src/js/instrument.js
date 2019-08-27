@@ -10,6 +10,8 @@ class Instrument {
 
   _connectSynthInit() {
     this.synth.connect(this.gain);
+    console.log('inside init')
+    console.log(this.synth)
   }
 
   get defaultSettings() {
