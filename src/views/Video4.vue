@@ -54,15 +54,16 @@ export default {
       selectedOscillator: "triangle",
       partialsArray: ["default", 2, 4, 8, 16, 32, 64, 128],
       numPartials: "default",
-      loopNotes: ['C2', 'D2', 'Eb2', 'F2', 'G2', 'Ab2', 'B2'],
+      loopNotes: ["C2", "D2", "Eb2", "F2", "G2", "Ab2", "B2"],
       loopTick: 0,
       synth: new Instrument(this.selectedSynth)
     };
   },
   methods: {
-    updateSynthType(e) {
+    updateSynthType: function(e) {
+      console.log('this inside component: ')
+      console.log(this)
       this.selectedSynth = e;
-      console.log(this.selectedSynth);
       this.synth.updateSynthType(this.selectedSynth);
     },
     updateOscillatorType(e) {
@@ -82,19 +83,28 @@ export default {
       this.synth.playNote();
     },
     playLoop() {
+      // this.synth.synth.context.transport.scheduleRepeat(time => {
+      //   let note = this.loopNotes[(this.loopTick) * 2 % this.loopNotes.length];
+      //   this.synth.synth.triggerAttackRelease(note, '8n', time);
+      //   this.loopTick++;
+      // }, '4n')
+      // this.synth.synth.context.transport.start();
       Tone.Transport.scheduleRepeat(time => {
-        let note = this.loopNotes[(this.loopTick) * 2 % this.loopNotes.length];
-        this.synth.synth.triggerAttackRelease(note, '8n', time);
+        let note = this.loopNotes[(this.loopTick * 2) % this.loopNotes.length];
+        this.synth.synth.triggerAttackRelease(note, "8n", time);
         this.loopTick++;
-      }, '4n')
+      }, "4n");
       Tone.Transport.start();
     },
     stopLoop() {
       this.synth.synth.triggerRelease();
+      // this.synth.synth.context.transport.stop();
       Tone.Transport.stop();
     }
   },
   mounted() {
+    console.clear();
+    this.updateSynthType('FMSynth')
     // console.log(this.synth);
   }
 };

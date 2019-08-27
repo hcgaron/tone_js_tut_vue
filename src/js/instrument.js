@@ -4,9 +4,12 @@ class Instrument {
   constructor(synthType) {
     this.synthType = synthType;
     this.synth = new Tone.Synth(this.synthType);
-    this.gain = new Tone.Gain(0.4);
+    this.gain = new Tone.Gain(0.4).toMaster();
+    this._connectSynthInit();
+  }
+
+  _connectSynthInit() {
     this.synth.connect(this.gain);
-    this.gain.toMaster();
   }
 
   get defaultSettings() {
@@ -80,11 +83,20 @@ class Instrument {
 
   updateSynthType(synthType) {
     // If we have already defined the synth
-    // let gain = this.gain;
     if (this.synth) {
+      console.log('this inside instrument: ')
+      console.log(this);
       this.synth.disconnect(this.gain);
-      this.synth = null;
+      console.log('calling dispose');
+      try {
+        this.synth.dispose();
+        console.log('disposed')
+      } catch (error) {
+        console.log('could not dispose')
+        // console.log(error)
+      }
     }
+
     // The new synth
     let settings = this.defaultSettings[synthType] || {};
     this.synth = new Tone[synthType](settings);
@@ -93,12 +105,12 @@ class Instrument {
   }
 
   updateOscillatorType(oscType, oscPartials) {
-      let partials = oscPartials === 'default' ? '' : oscPartials;
-      this.synth.oscillator.type =`${oscType}${partials}`;
+    let partials = oscPartials === 'default' ? '' : oscPartials;
+    this.synth.oscillator.type = `${oscType}${partials}`;
   }
 
   updatePartials(numPartials) {
-    this.updateOscillatorType(this.synth.oscillator.type, numPartials); 
+    this.updateOscillatorType(this.synth.oscillator.type, numPartials);
   }
 
   playNote() {
