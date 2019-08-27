@@ -56,13 +56,15 @@ export default {
       numPartials: "default",
       loopNotes: ["C2", "D2", "Eb2", "F2", "G2", "Ab2", "B2"],
       loopTick: 0,
-      synth: new Instrument(this.selectedSynth)
+      // synth: new Instrument(this.selectedSynth)
     };
   },
   methods: {
+    createSynth() {
+      // Object.defineProperty(this, 'synth', {value: new Instrument(this.selectedSynth), writeable: false})
+      this.synth = new Instrument('Synth');
+    },
     updateSynthType: function(e) {
-      console.log('this inside component: ')
-      console.log(this)
       this.selectedSynth = e;
       this.synth.updateSynthType(this.selectedSynth);
     },
@@ -83,23 +85,30 @@ export default {
       this.synth.playNote();
     },
     playLoop() {
-
-      Tone.Transport.scheduleRepeat(time => {
-        let note = this.loopNotes[(this.loopTick * 2) % this.loopNotes.length];
-        this.synth.synth.triggerAttackRelease(note, "8n", time);
-        this.loopTick++;
-      }, "4n");
       Tone.Transport.start();
     },
     stopLoop() {
       this.synth.synth.triggerRelease();
       Tone.Transport.stop();
+    },
+    scheduleRepeat() {
+            Tone.Transport.scheduleRepeat(time => {
+        let note = this.loopNotes[(this.loopTick * 2) % this.loopNotes.length];
+        this.synth.synth.triggerAttackRelease(note, "8n", time);
+        this.loopTick++;
+      }, "4n");
     }
   },
   mounted() {
+    this.createSynth();
+    console.log(this.synth)
+    this.scheduleRepeat();
+  },
+  beforeCreate() {
     console.clear();
-    this.updateSynthType('FMSynth')
-    // console.log(this.synth);
+  },
+  created() {
+    // console.clear();
   }
 };
 </script>

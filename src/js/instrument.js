@@ -10,10 +10,44 @@ class Instrument {
 
   _connectSynthInit() {
     this.synth.connect(this.gain);
-    console.log('inside init')
-    console.log(this.synth)
   }
 
+  updateSynthType(synthType) {
+    // If we have already defined the synth
+    if (this.synth) {
+      console.log('this inside instrument: ')
+      console.log(this);
+      this.synth.disconnect(this.gain);
+      console.log('calling dispose');
+      try {
+        this.synth.dispose();
+        console.log('disposed')
+      } catch (error) {
+        console.log('could not dispose')
+        // console.log(error)
+      }
+    }
+
+    // The new synth
+    let settings = this.defaultSettings[synthType] || {};
+    this.synth = new Tone[synthType](settings);
+    this.synth.connect(this.gain);
+    this.synth.triggerAttackRelease('C2', '16n');
+  }
+
+  updateOscillatorType(oscType, oscPartials) {
+    let partials = oscPartials === 'default' ? '' : oscPartials;
+    this.synth.oscillator.type = `${oscType}${partials}`;
+  }
+
+  updatePartials(numPartials) {
+    this.updateOscillatorType(this.synth.oscillator.type, numPartials);
+  }
+
+  playNote() {
+    this.synth.triggerAttackRelease('C2', '16n')
+  }
+ 
   get defaultSettings() {
     return {
       Synth: {
@@ -80,46 +114,7 @@ class Instrument {
       }
     }
   }
-
-
-
-  updateSynthType(synthType) {
-    // If we have already defined the synth
-    if (this.synth) {
-      console.log('this inside instrument: ')
-      console.log(this);
-      this.synth.disconnect(this.gain);
-      console.log('calling dispose');
-      try {
-        this.synth.dispose();
-        console.log('disposed')
-      } catch (error) {
-        console.log('could not dispose')
-        // console.log(error)
-      }
-    }
-
-    // The new synth
-    let settings = this.defaultSettings[synthType] || {};
-    this.synth = new Tone[synthType](settings);
-    this.synth.connect(this.gain);
-    this.synth.triggerAttackRelease('C2', '16n');
-  }
-
-  updateOscillatorType(oscType, oscPartials) {
-    let partials = oscPartials === 'default' ? '' : oscPartials;
-    this.synth.oscillator.type = `${oscType}${partials}`;
-  }
-
-  updatePartials(numPartials) {
-    this.updateOscillatorType(this.synth.oscillator.type, numPartials);
-  }
-
-  playNote() {
-    this.synth.triggerAttackRelease('C2', '16n')
-  }
 }
-
 export {
   Instrument
 }
