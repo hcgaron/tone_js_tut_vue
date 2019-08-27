@@ -4,7 +4,7 @@ class Instrument {
   constructor(synthType) {
     this.synthType = synthType;
     this.synth = new Tone.Synth(this.synthType);
-    this.gain = new Tone.Gain();
+    this.gain = new Tone.Gain(0.4);
     this.synth.connect(this.gain);
     this.gain.toMaster();
   }
@@ -76,6 +76,8 @@ class Instrument {
     }
   }
 
+
+
   updateSynthType(synthType) {
     // If we have already defined the synth
     // let gain = this.gain;
@@ -90,8 +92,13 @@ class Instrument {
     this.synth.triggerAttackRelease('C2', '16n');
   }
 
-  updateOscillatorType(oscType) {
-      this.synth.oscillator.type = oscType;
+  updateOscillatorType(oscType, oscPartials) {
+      let partials = oscPartials === 'default' ? '' : oscPartials;
+      this.synth.oscillator.type =`${oscType}${partials}`;
+  }
+
+  updatePartials(numPartials) {
+    this.updateOscillatorType(this.synth.oscillator.type, numPartials); 
   }
 
   playNote() {
