@@ -12,7 +12,7 @@ class Instrument {
     this.synth.connect(this.gain);
   }
 
-  updateSynthType(synthType) {
+  updateSynthType(synthType, options) {
     // If we have already defined the synth
     if (this.synth) {
       console.log('this inside instrument: ')
@@ -29,7 +29,12 @@ class Instrument {
     }
 
     // The new synth
-    let settings = this.defaultSettings[synthType] || {};
+    if (options) { // if we passed in settings
+      console.log(options)
+      var settings = options;
+    } else {
+      var settings = this.defaultSettings[synthType] || {};
+    }
     this.synth = new Tone[synthType](settings);
     this.synth.connect(this.gain);
     this.synth.triggerAttackRelease('C2', '16n');

@@ -34,7 +34,7 @@ export default {
         { name: "video_1", text: "Video 1" },
         { name: "video_2", text: "Video 2" },
         { name: "video_3", text: "Video 3", subheader: "Arpeggiator" },
-        { name: "video_4", text: "Video 4", subheader: "Synth Tester" },
+        { name: "video_4", text: "Video 4/5", subheader: "Synth Tester" },
         // { name: "misc", text: "Misc Testing"}
       ]
     };
